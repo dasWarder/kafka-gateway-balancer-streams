@@ -1,0 +1,41 @@
+server:
+  port: 7777
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8888/eureka
+
+spring:
+  application:
+    name: gateway-ws
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      routes:
+        - id: produce-message
+          uri: lb://producer-ws
+          predicates:
+            - Path=/api/v1/producer/order
+            - Method=GET,POST
+          filters:
+            - RemoveRequestHeader=Cookie
+
+        - id: basket-consumer
+          uri: lb://basket-consumer-ws
+          predicates:
+            - Path=/api/v1/consumer/baskets
+            - Method=GET,POST,DELETE
+          filters:
+            - RemoveRequestHeader=Cookie
+        - id: stock-consumer
+          uri: lb://stock-consumer-ws
+          predicates:
+            - Path=/api/v1/consumer/stocks
+            - Method=GET,POST,DELETE
+          filters:
+            - RemoveRequestHeader=Cookie
+
